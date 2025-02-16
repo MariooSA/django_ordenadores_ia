@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatBot | Inicio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Orbitron', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 50px;
+            width: 80%;
+            max-width: 900px;
+        }
+
+        .action-div {
+            background: #2c2c2c;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(0, 204, 255, 0.4);
+            transition: transform 0.3s ease;
+            flex: 1; /* Asegura que ambos divs tengan el mismo tamaño */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .action-div:hover {
+            transform: translateY(-5px);
+        }
+
+        .action-div a {
+            font-size: 2.5em;
+            color: #a1c4fd;
+            display: block;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            user-select: none; /* Desactiva la selección de texto */
+        }
+
+        .action-div a:hover {
+            color: #72c262;
+        }
+
+        .action-div .emote {
+            font-size: 3.5em;
+            margin-bottom: 15px;
+            user-select: none; /* Desactiva la selección de texto */
+        }
+
+        .action-div p {
+            font-size: 1.2em;
+            color: #a1c4fd;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Div para el chatbot -->
+        <div class="action-div">
+            <a href="{% url 'chatbot' %}">
+                <div class="emote">🤖</div>
+                <p>Ir al Chatbot</p>
+            </a>
+        </div>
+
+        <!-- Div para subir PDF -->
+        <div class="action-div">
+            <a href="{% url 'upload_pdf' %}">
+                <div class="emote">📄</div>
+                <p>Subir PDF</p>
+            </a>
+        </div>
+    </div>
+
+</body>
+</html>

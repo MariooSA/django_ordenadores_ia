@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatBot | PDF</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Mantener el estilo que ya tienes */
+        body {
+            font-family: 'Orbitron', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 40vw;
+            background: #2c2c2c;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 204, 255, 0.4);
+            text-align: center;
+            padding: 30px;
+            margin-top: 30px;
+        }
+
+        /* Diseño de los mensajes */
+        .message {
+            background: #4f5b67;
+            color: #e0e0e0;
+            padding: 5px 10px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 10px rgba(79, 91, 103, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .message.success {
+            background: #86e619;
+            color: #2c2c2c;
+            box-shadow: 0 0 10px rgba(59, 230, 25, 0.6);
+        }
+
+        .message.error {
+            background: #e61919;
+            color: #ffffff;
+            box-shadow: 0 0 10px rgba(230, 74, 25, 0.6);
+        }
+
+        .message .emote {
+            margin-right: 15px;
+            font-size: 1.8em;
+        }
+
+        .form-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 10px;
+            background: #2c2c2c;
+        }
+
+        label {
+            font-size: 1.1em;
+            color: #a1c4fd;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+            padding: 10px 20px;
+            border: 2px solid #a1c4fd;
+            border-radius: 5px;
+            background-color: #2c2c2c;
+        }
+
+        input[type="file"] {
+            display: none;
+            user-select: none;
+        }
+
+        .input-file-trigger {
+            font-size: 1.1em;
+            color: #e0e0e0;
+            background: #4f5b67;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            width: 100%;
+            user-select: none;
+        }
+
+        .input-file-trigger:hover {
+            background: #616161;
+            box-shadow: 0 0 15px rgba(97, 97, 97, 0.7);
+        }
+
+        #submit {
+            background-color: #72c262;
+            color: #ffffff;
+            padding: 12px 30px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        #submit:hover {
+            background-color: #7fa75e;
+            box-shadow: 0 0 15px rgba(97, 97, 97, 0.7);
+        }
+
+        #submit:active {
+            transform: translateY(2px);
+        }
+
+        #submit:disabled {
+            background-color: #616161;
+            cursor: not-allowed;
+        }
+
+        /* Estilo para los campos extraídos */
+        .extracted-data {
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .extracted-data div {
+            background-color: #3a3a3a;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+        }
+
+        .extracted-data strong {
+            color: #a1c4fd;
+        }
+
+        /* Botón de redirección */
+        .redirect-button {
+            font-size: 2.5em;
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #a1c4fd;
+            transition: all 0.3s ease;
+        }
+
+        .redirect-button:hover {
+            background-color: #84a9ff;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <!-- Mostrar el mensaje (si existe) -->
+        {% if messages %}
+        {% for message in messages %}
+        <div
+            class="message {% if message.tags == 'success' %}success{% elif message.tags == 'error' %}error{% endif %}">
+            <span class="emote">
+                {% if message.tags == 'success' %}
+                ✅
+                {% elif message.tags == 'error' %}
+                ⚠️
+                {% endif %}
+            </span>
+            <p>{{ message }}</p>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <!-- Formulario de carga de archivo -->
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-container">
+                <input class="input-file" id="my-file" type="file" name="pdf">
+                <label tabindex="0" for="my-file" class="input-file-trigger">Selecciona un PDF...</label>
+            </div>
+            <p class="file-return"></p>
+            <button id="submit" type="submit" disabled>Subir PDF</button>
+        </form>
+
+        <!-- Mostrar los datos extraídos debajo del formulario si existen -->
+        {% if extracted_data %}
+        <div class="extracted-data">
+            <h2>Datos extraídos:</h2>
+            {% for data in extracted_data %}
+                {% for key, value in data.items %}
+                <div>
+                    <strong>{{ key }}:</strong> {{ value }}
+                </div>
+                {% endfor %}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+    </div>
+
+    <!-- Botón para redirigir al chatbot (con emoji de robot) -->
+    <a href="{% url 'chatbot' %}">
+        <button class="redirect-button">🤖</button>
+    </a>
+
+</body>
+
+<script>
+    document.querySelector("html").classList.add('js');
+
+    var fileInput = document.querySelector(".input-file"),
+        button = document.querySelector(".input-file-trigger"),
+        the_return = document.querySelector(".file-return"),
+        label = document.querySelector("label[for='my-file']"),
+        submitButton = document.querySelector("#submit");
+
+    button.addEventListener("keydown", function (event) {
+        if (event.keyCode == 13 || event.keyCode == 32) {
+            fileInput.focus();
+        }
+    });
+
+    button.addEventListener("click", function (event) {
+        fileInput.focus();
+        return false;
+    });
+
+    fileInput.addEventListener("change", function (event) {
+        var fileName = this.files[0] ? this.files[0].name : 'Selecciona un PDF...';
+        label.textContent = fileName;
+
+        label.classList.add('selected');
+
+        // Habilitar o deshabilitar el botón de submit
+        if (this.files.length > 0) {
+            submitButton.disabled = false;
+        } else {
+            submitButton.disabled = true;
+        }
+    });
+
+    // Inicializar el estado del botón de submit
+    if (fileInput.files.length === 0) {
+        submitButton.disabled = true;
+    }
+</script>
+
+</html>

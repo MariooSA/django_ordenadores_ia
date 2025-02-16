@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatBot | Chat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Orbitron', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+            position: relative;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 83vw;
+
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 204, 255, 0.4);
+            text-align: center;
+            padding: 30px;
+            background-color: #2c2c2c54;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            user-select: none;
+        }
+
+        .form-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 20px;
+            border-radius: 10px;
+            background: #2c2c2c;
+            padding: 20px 20px;
+            width: 80vw;
+        }
+
+        label {
+            display: none;
+        }
+
+        input[type="file"] {
+            display: none;
+            user-select: none;
+        }
+
+        .form-container input,
+        .form-container button {
+            background: none;
+            border: none;
+            color: #e0e0e0;
+            padding: 12px 30px;
+            font-size: 1.5em;
+            font-family: 'Orbitron', sans-serif;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            user-select: none;
+        }
+
+        .form-container input[type="text"] {
+            flex-grow: 2;
+            min-width: 200px;
+        }
+
+        .form-container button {
+            background: #00eaff;
+            color: #ffffff;
+            font-size: 1.2rem;
+            margin-left: 10px;
+        }
+
+        .form-container button:hover {
+            background: #00ff88;
+            box-shadow: 0 0 10px #00ff88;
+        }
+
+        .redirect-button {
+            font-size: 2.5em;
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #a1c4fd;
+            transition: all 0.3s ease;
+        }
+
+        .redirect-button:hover {
+            background-color: #84a9ff;
+        }
+
+        .message.success {
+            display: flex;
+            align-items: center;
+            background-color: #2c2c2c;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 80%;
+            margin-top: 10px;
+            box-shadow: 0 0 10px rgba(0, 204, 255, 0.4);
+            font-size: 1.5em;
+        }
+
+        .message.success .emote {
+            margin-right: 10px;
+        }
+
+        .message.success p {
+            margin: 0;
+            flex-grow: 1;
+            text-align: left;
+            padding-right: 5px;
+        }
+
+        /* Permitir desplazamiento horizontal sin mostrar overflow vertical */
+        #matches {
+            overflow-x: auto;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: flex-start;
+            gap: 10px;
+        }
+
+        .laptop-cards-container {
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+            cursor: grab;
+            overflow: hidden;
+            /* Evitar overflow vertical */
+        }
+
+        .laptop-card {
+            background-color: #333;
+            color: #e0e0e0;
+            padding: 20px;
+            padding-top: 55px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 204, 255, 0.4);
+            text-align: center;
+            width: 20vw;
+            /* Tamaño fijo de las cartas */
+            height: 30vh;
+            /* Altura fija */
+            flex-shrink: 0;
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        @media (min-width: 2560px) {
+            .laptop-card {
+                padding: 0;
+                /* Eliminar el padding para pantallas grandes */
+                width: 18vw;
+                /* Ajustar el tamaño de la tarjeta según el tamaño de pantalla */
+                height: 35vh;
+                /* Hacer la tarjeta más alta para pantallas grandes */
+            }
+        }
+
+        .laptop-card:hover {
+            transform: scale(1.05);
+        }
+
+        .laptop-card h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        .laptop-card p {
+            margin: 8px 0;
+            font-size: 1em;
+        }
+
+        /* Estilos responsivos */
+        @media (max-width: 768px) {
+            .laptop-card {
+                width: 250px;
+                /* Reducir el tamaño en pantallas más pequeñas */
+            }
+
+            #matches {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .laptop-card {
+                width: 220px;
+                /* Ajustar aún más para pantallas muy pequeñas */
+            }
+        }
+
+        /* Barra de desplazamiento personalizada */
+        ::-webkit-scrollbar {
+            width: 12px;
+            /* Ancho de la barra de desplazamiento vertical */
+            height: 12px;
+            /* Altura de la barra de desplazamiento horizontal */
+        }
+
+        /* Fondo de la barra de desplazamiento */
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+            /* Color de fondo */
+            border-radius: 10px;
+        }
+
+        /* Manija de la barra de desplazamiento */
+        ::-webkit-scrollbar-thumb {
+            background: #5e5e5e;
+            /* Color de la manija */
+            border-radius: 10px;
+        }
+
+        /* Manija de la barra de desplazamiento al pasar el mouse */
+        ::-webkit-scrollbar-thumb:hover {
+            background: #858585;
+            /* Color de la manija al pasar el mouse */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Formulario del chatbot -->
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-container">
+                {{ form.as_table }}
+                <button id="submit" type="submit"> <i class="fa-solid fa-magnifying-glass"></i></button>
+            </div>
+        </form>
+
+        <!-- Mostrar el mensaje de respuesta del chatbot -->
+        {% if response %}
+        <div class="message success">
+            <span class="emote">🤖:</span>
+            <p>{{ response.mensaje }}</p>
+        </div>
+
+        {% if not response.Nada %}
+        <!-- Mostrar las laptops encontradas -->
+        <div id="matches">
+            <div class="laptop-cards-container" id="laptop-cards-container">
+                {% for laptop in response.laptops %}
+                <div class="laptop-card">
+                    <h3>{{ laptop.Marca }} {{ laptop.Modelo }}</h3>
+                    <p><strong>Procesador:</strong> {{ laptop.Procesador }}</p>
+                    <p><strong>Tarjeta Gráfica:</strong> {{ laptop.Tarjeta_grafica }}</p>
+                    <p><strong>RAM:</strong> {{ laptop.RAM }} GB</p>
+                    <p><strong>Almacenamiento:</strong> {{ laptop.Almacenamiento }} GB</p>
+                    <p><strong>Pulgadas:</strong> {{ laptop.Pulgadas }}"</p>
+                    <p><strong>Precio:</strong> {{ laptop.Precio }} €</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        {% endif %}
+
+        <!-- Botón para redirigir al formulario de carga de PDF -->
+        <a href="{% url 'upload_pdf' %}">
+            <button class="redirect-button">📄</button>
+        </a>
+    </div>
+
+    <script>
+        // Script para hacer que el contenedor de las tarjetas sea arrastrable
+        const laptopCardsContainer = document.getElementById('laptop-cards-container');
+        let isDragging = false;
+        let startX, scrollLeft;
+
+        laptopCardsContainer.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startX = e.pageX - laptopCardsContainer.offsetLeft;
+            scrollLeft = laptopCardsContainer.scrollLeft;
+            laptopCardsContainer.style.cursor = 'grabbing';
+        });
+
+        laptopCardsContainer.addEventListener('mouseleave', () => {
+            isDragging = false;
+            laptopCardsContainer.style.cursor = 'grab';
+        });
+
+        laptopCardsContainer.addEventListener('mouseup', () => {
+            isDragging = false;
+            laptopCardsContainer.style.cursor = 'grab';
+        });
+
+        laptopCardsContainer.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            e.preventDefault();
+            const x = e.pageX - laptopCardsContainer.offsetLeft;
+            const walk = (x - startX) * 2; // Aumento de velocidad del desplazamiento
+            laptopCardsContainer.scrollLeft = scrollLeft - walk;
+        });
+    </script>
+</body>
+
+</html>
