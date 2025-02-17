@@ -1,0 +1,48 @@
+# Ignorar archivos de caché de Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Archivos de entorno virtual
+venv/
+env/
+*.egg-info/
+*.egg
+.Python
+
+# Configuración de logs y bases de datos temporales
+*.log
+db.sqlite3
+instance/
+*.db
+*.sqlite
+
+# Archivos de caché de Django y migraciones compiladas
+**/__pycache__/
+**/migrations/*.pyc
+**/migrations/__pycache__/
+**/migrations/*.py[cod]
+
+# Archivos de caché de Jupyter Notebooks
+.ipynb_checkpoints/
+
+# Archivos de caché de VS Code y otros editores
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Cache de pip
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Archivos de caché generados por Python y otros frameworks
+cache/
+*.mo
+*.pot
+*.pid
+*.seed
+
+# Archivos temporales y de entorno
+.DS_Store
+Thumbs.db

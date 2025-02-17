@@ -539,10 +539,73 @@ def gpt_translate(text, target_language):
         translated_text = response.choices[0].message.content.strip()
     return translated_text
 
+def gpt_translate_laptops(laptop_cards, target_language):
+    if target_language == "es":  # Si el idioma es español, no se traduce
+        return laptop_cards  
 
-# utils.py
+    # Diccionario con los nombres originales de los campos en español
+    field_names = {
+        "Marca": "Marca",
+        "Modelo": "Modelo",
+        "Procesador": "Procesador",
+        "Tarjeta_grafica": "Tarjeta gráfica",
+        "RAM": "RAM",
+        "Almacenamiento": "Almacenamiento",
+        "Pulgadas": "Pulgadas",
+        "Precio": "Precio"
+    }
 
-# utils.py
+    # Convertir el diccionario en una lista para traducirlo
+    fields_to_translate = "\n".join([f"{k}: {v}" for k, v in field_names.items()])
+
+    # Pedir la traducción de los nombres de los campos
+    response_fields = client.chat.completions.create(
+        model=AI_MODEL,
+        messages=[
+            {"role": "system", "content": f"Translate the following laptop specification fields to {target_language}. Keep the format: 'Original: Translation'."},
+            {"role": "user", "content": fields_to_translate}
+        ]
+    )
+
+    # Convertir la respuesta en un diccionario traducido de forma segura
+    translated_fields_text = response_fields.choices[0].message.content.strip()
+    translated_fields = {}
+
+    for line in translated_fields_text.split("\n"):
+        parts = line.split(":", 1)  # Separa solo en el primer ":" para evitar errores
+        if len(parts) == 2:
+            key, value = parts
+            translated_fields[key.strip()] = value.strip()
+
+    print("Traducción de campos:", translated_fields)  # Depuración
+
+    # Traducir los valores de cada laptop
+    translated_laptops = []
+    for laptop in laptop_cards:
+        translated_laptop = {}
+
+        for key, value in laptop.items():
+            if key not in translated_fields:
+                print(f"⚠️ Advertencia: '{key}' no tiene traducción. Usando original.")
+                translated_key = key
+            else:
+                translated_key = translated_fields[key]
+
+            # Traducir el valor de cada campo
+            response_value = client.chat.completions.create(
+                model=AI_MODEL,
+                messages=[
+                    {"role": "system", "content": f"Translate the following text to {target_language}."},
+                    {"role": "user", "content": str(value)}
+                ]
+            )
+
+            translated_laptop[translated_key] = response_value.choices[0].message.content.strip()
+
+        translated_laptops.append(translated_laptop)
+
+    return translated_laptops
+
 
 def process_laptop_results(results):
     """
@@ -565,7 +628,6 @@ def process_laptop_results(results):
         laptop_list.append(laptop_info)
     
     return laptop_list
-
 
 def chatbot_response(user_query):
     parsed_query = gpt_parse_query(user_query)  # Extrae especificaciones
@@ -598,8 +660,9 @@ def chatbot_response(user_query):
                 "Pulgadas": laptop['Pulgadas'],
                 "Precio": laptop['Precio']
             })
+        laptop_cards_translated = gpt_translate_laptops(laptop_cards, idioma)
 
-        return {"mensaje": translated_header, "Nada": False, "laptops": laptop_cards}
+        return {"mensaje": translated_header, "Nada": False, "laptops": laptop_cards_translated}
     else:
         # Si no hay resultados, generar el mensaje adecuado
         response_text = "No encontré ningún equipo con esas características."

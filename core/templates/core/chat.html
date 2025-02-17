@@ -263,17 +263,17 @@
             <div class="laptop-cards-container" id="laptop-cards-container">
                 {% for laptop in response.laptops %}
                 <div class="laptop-card">
-                    <h3>{{ laptop.Marca }} {{ laptop.Modelo }}</h3>
-                    <p><strong>Procesador:</strong> {{ laptop.Procesador }}</p>
-                    <p><strong>Tarjeta Gráfica:</strong> {{ laptop.Tarjeta_grafica }}</p>
-                    <p><strong>RAM:</strong> {{ laptop.RAM }} GB</p>
-                    <p><strong>Almacenamiento:</strong> {{ laptop.Almacenamiento }} GB</p>
-                    <p><strong>Pulgadas:</strong> {{ laptop.Pulgadas }}"</p>
-                    <p><strong>Precio:</strong> {{ laptop.Precio }} €</p>
+                    {% for key, value in laptop.items %}
+                        {% if forloop.first %}
+                            <h3>{{ value }}</h3>  {# Primera clave será Marca o Modelo #}
+                        {% else %}
+                            <p><strong>{{ key }}:</strong> {{ value }}</p>
+                        {% endif %}
+                    {% endfor %}
                 </div>
                 {% endfor %}
             </div>
-        </div>
+        </div>        
         {% endif %}
         {% endif %}
 
