@@ -15,7 +15,6 @@ document_intelligence_model_id = DOC_INT_MODEL  # ID del modelo personalizado
 openai_endpoint = AI_ENDPOINT
 openai_api_key = AI_KEY
 
-
 client = AzureOpenAI(
         azure_endpoint=openai_endpoint,
         api_key=openai_api_key,
@@ -400,7 +399,6 @@ def get_laptop_recommendations(parsed_query):
             "MaxPantalla": "SELECT TOP 3 * FROM Ordenadores ORDER BY Pulgadas DESC",
             "MinPantalla": "SELECT TOP 3 * FROM Ordenadores ORDER BY Pulgadas ASC"
         }
-
         if intent in intent_queries:
             sql_query = intent_queries[intent]
             print(f"Executing Intent Query: {sql_query}")
@@ -408,7 +406,6 @@ def get_laptop_recommendations(parsed_query):
             results = cursor.fetchall()
             conn.close()
             return results  # Devuelve los resultados directamente
-
     else:
         # Si no hay "Intent", se ejecuta la consulta con filtros dinámicos
         conditions = []
@@ -562,7 +559,7 @@ def gpt_translate_laptops(laptop_cards, target_language):
     response_fields = client.chat.completions.create(
         model=AI_MODEL,
         messages=[
-            {"role": "system", "content": f"Translate the following laptop specification fields to {target_language}. Keep the format: 'Original: Translation'."},
+            {"role": "system", "content": f"Translate the following laptop specification fields to {target_language}. Keep the format: 'Original: Translation'. You should translate only the words, and do not add any extra text"},
             {"role": "user", "content": fields_to_translate}
         ]
     )

@@ -126,23 +126,36 @@
         }
 
         /* Permitir desplazamiento horizontal sin mostrar overflow vertical */
-        #matches {
-            overflow-x: auto;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: flex-start;
-            gap: 10px;
-        }
-
         .laptop-cards-container {
             display: flex;
             gap: 20px;
             padding: 20px;
             cursor: grab;
-            overflow: hidden;
-            /* Evitar overflow vertical */
+            overflow: auto;
+            /* Cambiar de hidden a auto para permitir desplazamiento horizontal */
+            justify-content: flex-start;
+            width: 100%;
         }
+
+        /* Centrar las tarjetas cuando hay menos de 3 */
+        .laptop-cards-container.center-cards {
+            justify-content: center;
+            flex-wrap: nowrap;
+            /* Evitar el salto de líneas cuando haya menos de 3 tarjetas */
+        }
+
+        /* Ajustes cuando hay muchas tarjetas y el contenedor necesita desplazarse horizontalmente */
+        #matches {
+            overflow-x: auto;
+            /* Permitir desplazamiento horizontal */
+            width: 100%;
+            /* Ocupa todo el ancho */
+            display: flex;
+            justify-content: flex-start;
+            gap: 10px;
+        }
+
+
 
         .laptop-card {
             background-color: #333;
@@ -162,6 +175,35 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
+            opacity: 0;
+            /* Comienza invisible */
+            animation: fadeIn 0.5s forwards;
+            /* Agrega animación de aparición */
+        }
+
+        /* Animación para hacer que las tarjetas aparezcan secuencialmente */
+        .laptop-card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .laptop-card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .laptop-card:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .laptop-card:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+                /* Asegura que se muevan desde abajo */
+            }
         }
 
         @media (min-width: 2560px) {
@@ -236,10 +278,45 @@
             background: #858585;
             /* Color de la manija al pasar el mouse */
         }
+
+        .floating-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+        }
+
+        .floating-element {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: rgba(0, 204, 255, 0.4);
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: float 10s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) translateX(0) scale(0.8);
+                opacity: 0;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-10vh) translateX(30px) scale(1.2);
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 
 <body>
+    <div class="floating-container"></div>
     <div class="container">
         <!-- Formulario del chatbot -->
         <form method="post">
@@ -264,16 +341,16 @@
                 {% for laptop in response.laptops %}
                 <div class="laptop-card">
                     {% for key, value in laptop.items %}
-                        {% if forloop.first %}
-                            <h3>{{ value }}</h3>  {# Primera clave será Marca o Modelo #}
-                        {% else %}
-                            <p><strong>{{ key }}:</strong> {{ value }}</p>
-                        {% endif %}
+                    {% if forloop.first %}
+                    <h3>{{ value }}</h3> {# Primera clave será Marca o Modelo #}
+                    {% else %}
+                    <p><strong>{{ key }}:</strong> {{ value }}</p>
+                    {% endif %}
                     {% endfor %}
                 </div>
                 {% endfor %}
             </div>
-        </div>        
+        </div>
         {% endif %}
         {% endif %}
 
@@ -284,6 +361,15 @@
     </div>
 
     <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const laptopCardsContainer = document.getElementById('laptop-cards-container');
+            const laptopCards = laptopCardsContainer.querySelectorAll('.laptop-card');
+
+            if (laptopCards.length < 3) {
+                laptopCardsContainer.classList.add('center-cards');
+            }
+        });
+
         // Script para hacer que el contenedor de las tarjetas sea arrastrable
         const laptopCardsContainer = document.getElementById('laptop-cards-container');
         let isDragging = false;
@@ -313,6 +399,30 @@
             const walk = (x - startX) * 2; // Aumento de velocidad del desplazamiento
             laptopCardsContainer.scrollLeft = scrollLeft - walk;
         });
+    </script>
+    <script>
+        // Crear elementos flotantes
+        const container = document.querySelector('.floating-container');
+
+        function createFloatingElements() {
+            for (let i = 0; i < 15; i++) {
+                let bubble = document.createElement('div');
+                bubble.classList.add('floating-element');
+                let size = Math.random() * 30 + 10; // Tamaño aleatorio entre 10px y 40px
+                let posX = Math.random() * window.innerWidth;
+                let duration = Math.random() * 5 + 5; // Entre 5s y 10s
+
+                bubble.style.width = `${size}px`;
+                bubble.style.height = `${size}px`;
+                bubble.style.left = `${posX}px`;
+                bubble.style.animationDuration = `${duration}s`;
+                bubble.style.animationDelay = `${Math.random() * 5}s`;
+
+                container.appendChild(bubble);
+            }
+        }
+
+        createFloatingElements();
     </script>
 </body>
 
